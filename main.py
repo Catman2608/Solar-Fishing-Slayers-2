@@ -1170,20 +1170,11 @@ os.makedirs(BASE_PATH, exist_ok=True)
 # Configs Path
 MISC_PATH = os.path.join(BASE_PATH, "misc.json")
 data = load_misc_settings(MISC_PATH)
-CONFIGS_PATH = os.path.join(BASE_PATH, "configs")
 SETTINGS_PATH = os.path.join(BASE_PATH, "settings.json")
 IMAGES_PATH = os.path.join(BASE_PATH, "images")
 UI_PATH = os.path.join(BASE_PATH, "ui")
 # None until index.html is parsed. Must exist before _get_prompt_defaults reads it.
 _PROMPT_DEFAULTS = None
-# File Management
-def open_base_folder(folder=BASE_PATH):
-    if sys.platform == "win32":
-        os.startfile(folder)
-    elif sys.platform == "darwin":  # Macos
-        subprocess.run(["open", folder])
-    else:  # Linux
-        subprocess.run(["xdg-open", folder])
 # Central Area Definitions.  To Add A New Selectable Area:
 # 1. Add An Entry Below (Key, Color, Label, Default Ratios 0–1).
 # 2. That'S It — Selector Ui, Save/Load, Defaults, And The Show/Hide Menu
@@ -2873,7 +2864,7 @@ class Api:
         return dict(defaults)
 
     def _get_saved_default_config(self):
-        default_path = os.path.join(CONFIGS_PATH, "Default", "config.json")
+        default_path = os.path.join("settings.json")
         try:
             with open(default_path, "r", encoding="utf-8") as file:
                 data = json.load(file)
@@ -2935,33 +2926,8 @@ class Api:
 
         return filled
 
-    def _safe_config_name(self, name):
-        name = str(name or "").strip()
-        name = os.path.basename(name)
-        if name.lower().endswith(".json"):
-            name = name[:-5]
-        name = name.replace("\\", "").replace("/", "").strip()
-        return name
-
-    def _config_folder(self, config_name):
-        return os.path.join(CONFIGS_PATH, config_name)
-
-    def _config_file(self, config_name):
-        return os.path.join(self._config_folder(config_name), "config.json")
-
     def _ensure_default_config(self):
-        os.makedirs(CONFIGS_PATH, exist_ok=True)
-        names = [
-            folder
-            for folder in os.listdir(CONFIGS_PATH)
-            if os.path.isdir(os.path.join(CONFIGS_PATH, folder))
-        ]
-        if names:
-            return
-
-        folder = self._config_folder("Default")
-        os.makedirs(folder, exist_ok=True)
-        path = self._config_file("Default")
+        path = os.path.join("settings.json")
         if not os.path.exists(path):
             with open(path, "w", encoding="utf-8") as file:
                 json.dump({}, file, indent=4)
@@ -3026,271 +2992,6 @@ class Api:
             pass
 
         self.set_status(f"{label} set to {key.upper()}")
-    def list_configs(self):
-        try:
-            self._ensure_default_config()
-            configs = sorted([ folder for folder in os.listdir(CONFIGS_PATH) if os.path.isdir(os.path.join(CONFIGS_PATH, folder)) ])
-            return configs
-
-        except Exception:
-            return []
-
-    def open_base_folder(self, folder=None):
-        """Open the configs (or given) folder in the system file manager."""
-        try:
-            target = folder or CONFIGS_PATH or BASE_PATH
-            if not target:
-                return {"success": False, "error": "No folder path."}
-
-            os.makedirs(target, exist_ok=True)
-            # Call the module-level helper (handles win/mac/linux).
-            open_base_folder(target)
-            return {"success": True, "path": target}
-
-        except Exception as exc:
-            return {"success": False, "error": str(exc)}
-
-    def export_config(self, settings):
-        """Export the current config via a native Pywebview save dialog."""
-        try:
-            if not isinstance(settings, dict):
-                return {"success": False, "error": "Settings must be an object."}
-
-            config_name = self.current_config or self.get_misc() or "config"
-            safe_name = self._safe_config_name(config_name) or "config"
-            filename = f"{safe_name}.json"
-            dialog_type = None
-            try:
-                dialog_type = webview.FileDialog.SAVE
-            except Exception:
-                dialog_type = getattr(webview, "SAVE_DIALOG", None)
-            if dialog_type is None:
-                return {"success": False, "error": "Save dialog is unavailable."}
-
-            path = webview.windows[0].create_file_dialog(dialog_type, save_filename=filename)
-            if not path:
-                return {"success": False, "error": "Cancelled"}
-
-            if isinstance(path, (list, tuple)):
-                path = path[0]
-            if not path:
-                return {"success": False, "error": "Cancelled"}
-
-            with open(path, "w", encoding="utf-8") as f:
-                json.dump(settings, f, indent=4)
-            return {"success": True, "path": path, "filename": os.path.basename(path)}
-
-        except Exception as e:
-            return {"success": False, "error": str(e)}
-
-    def delete_config(self, config_name):
-        try:
-            config_name = self._safe_config_name(config_name)
-            if not config_name:
-                return {"success": False, "error": "No config name provided."}
-
-            if config_name.lower() == "default":
-                return {"success": False, "error": "Cannot delete the Default configuration."}
-
-            folder = self._config_folder(config_name)
-            if not os.path.isdir(folder):
-                return {"success": False, "error": "Configuration not found."}
-
-            shutil.rmtree(folder)
-            # If we deleted the current one, switch to another
-            if getattr(self, "current_config", None) == config_name:
-                remaining = self.list_configs()
-                next_config = remaining[0] if remaining else "Default"
-                self.current_config = next_config
-                self.save_misc(next_config)
-            return {"success": True, "config_name": config_name}
-
-        except Exception as exc:
-            return {"success": False, "error": str(exc)}
-
-    def get_misc(self):
-        try:
-            if os.path.exists(MISC_PATH):
-                with open(MISC_PATH, "r", encoding="utf-8") as file:
-                    data = json.load(file)
-                if isinstance(data, dict):
-                    return data.get("misc", "") or ""
-
-        except Exception:
-            pass
-
-        return ""
-
-    def save_misc(self, config_name):
-        config_name = self._safe_config_name(config_name)
-        if not config_name:
-            return False
-
-        try:
-            data = {}
-            if os.path.exists(MISC_PATH):
-                try:
-                    with open(MISC_PATH, "r", encoding="utf-8") as file:
-                        loaded = json.load(file)
-                    if isinstance(loaded, dict):
-                        data = loaded
-                except Exception:
-                    data = {}
-            data["misc"] = config_name
-            os.makedirs(BASE_PATH, exist_ok=True)
-            with open(MISC_PATH, "w", encoding="utf-8") as file:
-                json.dump(data, file, indent=4)
-            return True
-
-        except Exception:
-            return False
-
-    def resolve_config_name(self, config_name):
-        configs = self.list_configs()
-        wanted = self._safe_config_name(config_name)
-        if wanted in configs:
-            return wanted
-
-        for name in configs:
-            if name.lower() == wanted.lower():
-                return name
-
-        last = self._safe_config_name(self.get_misc())
-        if last in configs:
-            return last
-
-        return configs[0] if configs else ""
-
-    def convert_to_json(self, content, file_extension):
-        def to_snake_case(key):
-            key = re.sub(r'([A-Z]+)([A-Z][a-z])', r'\1_\2', key)
-            key = re.sub(r'([a-z0-9])([A-Z])', r'\1_\2', key)
-            return key.lower().replace(" ", "_")
-
-        def parse_ini_key(line):
-            if "=" not in line:
-                return None, None
-
-            key, value = line.split("=", 1)   # split only on the first =
-            value = value.lower()
-            return key.strip(), value.strip()
-
-        def bgr_to_rgb(value: str) -> str:
-            """Convert '0xBBGGRR' -> '#RRGGBB'."""
-            hex_str = value.strip().lower()
-            if hex_str.startswith("0x"):
-                hex_str = hex_str[2:]
-            hex_str = hex_str.zfill(6)  # handle e.g. 0x0
-            b, g, r = hex_str[0:2], hex_str[2:4], hex_str[4:6]
-            return f"#{r}{g}{b}".upper()
-
-        try:
-            if file_extension == "ini":
-                ini_mapping = ["CastScanDelay", "DelayBeforeCating", "DelayBeforeCasting", "CastDuration", "DelayAfterCasting", 
-                               "ShakeScanDelay", "MinigameScanDelay", "RestartDelay", "ClickDelay", "UtilityRestartDelay", "TotemDelay", 
-                               "SundialDelay", "CastTimeout", "ReleaseDelay", "AnimationDelay"]
-                lines = str(content or "").splitlines()
-                result = {}
-                for line in lines:                  # just iterate the lines directly
-                    line = line.strip()
-                    if not line or line.startswith("#") or line.startswith(";"):
-                        continue
-
-                    key, value = parse_ini_key(line)
-                    if key is None:
-                        continue
-
-                    if key.lower() == "leftcolor":
-                        key = "BarColor"
-                    if key.lower() == "rightcolor":
-                        key = "BarColor 2"
-                        result["bar_color_count"] = 2
-                    if key.lower() == "lefttolerance":
-                        key = "BarTolerance"
-                    if key.lower() == "righttolerance":
-                        key = "BarTolerance 2"
-                        result["bar_color_count"] = 2
-                    if value.startswith("0x"):
-                        value = bgr_to_rgb(value)
-                    # Convert delay values from milliseconds to seconds for known keys
-                    if key in ini_mapping:
-                        try:
-                            value2 = int(float(value))
-                            value = round(value2 / 1000, 4)
-                        except (ValueError, TypeError):
-                            pass  # leave non-numeric values unchanged
-
-                    result[to_snake_case(key)] = value
-                # Return proper JSON string
-                return {"success": True, "json_text": json.dumps(result, indent=4)}
-
-            else:
-                # TXT path (semicolon-separated DF1 format)
-                # Note: DF1 colors are 0xRRGGBB (unlike INI which is 0xBBGGRR)
-                result = {}
-                parts = [p.strip() for p in str(content or "").split(";")]
-                if not parts or parts[0] != "DF1":
-                    raise RuntimeError("Incompatible TXT config")
-
-                def rgb_hex(value: str) -> str:
-                    """Convert '0xRRGGBB' (or plain hex) to '#RRGGBB'. No channel swap."""
-                    hex_str = value.strip().lower()
-                    if hex_str.startswith("0x"):
-                        hex_str = hex_str[2:]
-                    hex_str = hex_str.replace("#", "").zfill(6)
-                    return f"#{hex_str.upper()}"
-
-                def assign_colors(base_key: str, raw: str):
-                    """Split comma-separated colors into base / base_2 / base_3 ... and set count."""
-                    if not raw:
-                        return
-
-                    colors = [c.strip() for c in raw.split(",") if c.strip()]
-                    if not colors:
-                        return
-
-                    for i, col in enumerate(colors, start=1):
-                        key = base_key if i == 1 else f"{base_key}_{i}"
-                        result[key] = rgb_hex(col)
-                    result[f"{base_key}_count"] = len(colors)
-                def raw_field(idx: int) -> str:
-                    return parts[idx] if idx < len(parts) else ""
-
-                # Field mapping (0-based after split on ';')
-                # 2  = fish tolerance
-                # 5  = fish colors (may be comma-separated)
-                # 6  = left bar colors
-                # 7  = right bar colors
-                # 8  = bar tolerance
-                # 9  = arrow color
-                # 10 = arrow tolerance
-                if raw_field(2):
-                    result["fish_tolerance"] = raw_field(2)
-                if raw_field(5):
-                    assign_colors("fish_color", raw_field(5))
-                # Interleave left (field 6) and right (field 7): left1, right1, left2, right2, ...
-                left_colors = [c.strip() for c in raw_field(6).split(",") if c.strip()]
-                right_colors = [c.strip() for c in raw_field(7).split(",") if c.strip()]
-                bar_colors = []
-                max_len = max(len(left_colors), len(right_colors))
-                for i in range(max_len):
-                    if i < len(left_colors):
-                        bar_colors.append(left_colors[i])
-                    if i < len(right_colors):
-                        bar_colors.append(right_colors[i])
-                if bar_colors:
-                    assign_colors("bar_color", ",".join(bar_colors))
-                if raw_field(8):
-                    result["bar_tolerance"] = raw_field(8)
-                if raw_field(9):
-                    assign_colors("arrow_color", raw_field(9))
-                if raw_field(10):
-                    result["arrow_tolerance"] = raw_field(10)
-                # Add more field mappings here as needed
-                return {"success": True, "json_text": json.dumps(result, indent=4)}
-
-        except Exception as exc:
-            return {"success": False, "error": str(exc)}
 
     def save_settings(self, settings=None):
         try:
@@ -3358,15 +3059,7 @@ class Api:
     def load_settings(self):
         settings = {}
         load_error = None
-        should_write = not os.path.exists(SETTINGS_PATH)
         config_path = SETTINGS_PATH
-
-        if should_write:
-            legacy_name = self.resolve_config_name(self.get_misc())
-            if legacy_name:
-                legacy_path = self._config_file(legacy_name)
-                if os.path.exists(legacy_path):
-                    config_path = legacy_path
 
         try:
             if os.path.exists(config_path):
@@ -3505,20 +3198,6 @@ class Api:
 
         return cleaned
 
-    def open_link(self, url):
-        """Open a URL in the default web browser."""
-        try:
-            webbrowser.open(url)
-            return {
-
-                "success": True
-            }
-        except Exception as e:
-            return {
-
-                "success": False,
-                "error": str(e)
-            }
     def get_python_version_info(self):
         """Return the Python backend's app version, beta version, developer."""
         return {
@@ -3527,36 +3206,6 @@ class Api:
             "beta_version": BETA_VERSION,
             "developer": DEVELOPER
         }
-    def get_js_version_info(self):
-        """Retrieve the JS app version, beta version, developer name via evaluate_js."""
-        try:
-            result = window.evaluate_js("({ app_version: window.APP_VERSION || null, beta_version: window.BETA_VERSION || null, developer: window.DEVELOPER || null})")
-            if isinstance(result, dict):
-                return result
-
-            if isinstance(result, str) and result.strip():
-                try:
-                    parsed = json.loads(result)
-                    if isinstance(parsed, dict):
-                        return parsed
-
-                except Exception:
-                    pass
-
-            return {
-
-                "app_version": None,
-                "beta_version": None,
-                "developer": None,
-            }
-        except Exception as e:
-            return {
-
-                "app_version": None,
-                "beta_version": None,
-                "developer": None,
-                "error": str(e)
-            }
     def set_status(self, message):
         """Push a status message to the main webview window's JS."""
         if IS_COMPILED == False:
