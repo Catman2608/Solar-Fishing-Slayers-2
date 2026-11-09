@@ -1,0 +1,657 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Solar Fishing Slayers 2 V2026.11.1</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <!-- SVG icons -->
+    <svg class="icon-sprite" aria-hidden="true" focusable="false">
+        <defs>
+        <symbol id="i-picker" viewBox="0 0 24 24">
+            <path d="M14.5 4.5l5 5-8.2 8.2a2.6 2.6 0 0 1-3.7 0l-1.3-1.3a2.6 2.6 0 0 1 0-3.7z" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/>
+            <path d="M12.2 6.8l5 5" fill="none" stroke="currentColor" stroke-width="1.7"/>
+            <path d="M2026.11.1 18.8l2.2-2.2" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/>
+        </symbol>
+
+        <symbol id="i-reset" viewBox="0 0 24 24">
+            <!-- Circular undo / restore arrow -->
+            <path d="M4 12a8 8 0 1 0 2.3-5.7" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+            <path d="M4 4v5.5h5.5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M12 8v4l3 2" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+        </symbol>
+
+        <symbol id="i-crosshair" viewBox="0 0 24 24">
+            <circle cx="12" cy="12" r="6.1" fill="none" stroke="currentColor" stroke-width="1.6"/>
+            <path d="M12 2.4v3.2M12 18.4v3.2M2.4 12h3.2M18.4 12h3.2" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
+            <path d="M12 9.2v5.6M9.2 12h5.6" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
+            <circle cx="12" cy="12" r="1.15" fill="currentColor"/>
+        </symbol>
+
+        <symbol id="i-close" viewBox="0 0 24 24">
+            <path d="M6 6l12 12M18 6L6 18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+        </symbol>
+
+        <!-- Sidebar icons -->
+        <symbol id="i-overview" viewBox="0 0 24 24">
+            <circle cx="12" cy="8" r="3.2" fill="none" stroke="currentColor" stroke-width="1.7"/>
+            <path d="M5.5 20.5c0-3.2 2.8-5.5 6.5-5.5s6.5 2.3 6.5 5.5" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/>
+        </symbol>
+
+        <symbol id="i-advanced" viewBox="0 0 24 24">
+            <path d="M12 15.5a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7z" fill="none" stroke="currentColor" stroke-width="1.7"/>
+            <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/>
+        </symbol>
+
+        <symbol id="i-faq" viewBox="0 0 24 24">
+            <circle cx="12" cy="12" r="8.5" fill="none" stroke="currentColor" stroke-width="1.7"/>
+            <path d="M9.8 9.8a2.3 2.3 0 0 1 4.4 0.8c0 1.4-2.2 1.8-2.2 3.2" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/>
+            <circle cx="12" cy="16.2" r="0.7" fill="currentColor"/>
+        </symbol>
+
+        <symbol id="i-about" viewBox="0 0 24 24">
+            <circle cx="12" cy="12" r="8.5" fill="none" stroke="currentColor" stroke-width="1.7"/>
+            <path d="M12 11.2v5" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/>
+            <circle cx="12" cy="8.2" r="0.8" fill="currentColor"/>
+        </symbol>
+        </defs>
+    </svg>
+    <!-- Title Bar -->
+    <div class="title-bar pywebview-drag-region">
+        <div class="title-left">
+            <div class="logo pywebview-drag-region">Solar Fishing Slayers 2 V2026.11.1</div>
+            <div class="status pywebview-drag-region" hidden>Beta 2</div>
+        </div>
+        <div id="status_label" class="status-label pywebview-drag-region">Preview Mode</div>
+        <div class="window-controls">
+            <button class="window-control window-minimize" aria-label="Minimize" title="Minimize" onclick="minimizeWindow()"></button>
+            <button class="window-control window-close" aria-label="Close" title="Close" onclick="closeWindow()"></button>
+        </div>
+    </div>
+    <div class="app-layout">
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <button class="tab-button active" data-tab="main">
+                <svg class="icon" aria-hidden="true"><use href="#i-overview"></use></svg>
+                Main
+            </button>
+            <button class="tab-button" data-tab="advanced">
+                <svg class="icon" aria-hidden="true"><use href="#i-advanced"></use></svg>
+                Advanced
+            </button>
+            <button class="tab-button" data-tab="faq">
+                <svg class="icon" aria-hidden="true"><use href="#i-faq"></use></svg>
+                FAQ
+            </button>
+            <button class="tab-button" data-tab="about">
+                <svg class="icon" aria-hidden="true"><use href="#i-about"></use></svg>
+                About
+            </button>
+        </div>
+        <!-- Right of sidebar: config bar on top, main content below -->
+        <div class="content-column">
+        <!-- Main GUI -->
+        <div class="main-area">
+            <div id="main" class="tab-content active">
+                <section class="panel open">
+                    <div class="panel-header">
+                        <h2>Hotkeys</h2>
+                        <p class="description">Configure keyboard shortcuts for controlling Solar Fishing and its features.</p>
+                        <button class="panel-toggle" type="button" aria-label="Toggle section"></button>
+                    </div>
+                    <div class="panel-body">
+                        <div class="hotkey-row">
+                            <span>Start Key</span>
+                            <input id="start_key" type="hidden" value="f5">
+                            <button class="key-btn" id="start_key_btn" onclick="rebindHotkeys('start_key')" type="button">F5</button>
+                        </div>
+                        <div class="hotkey-row">
+                            <span>Area Selector Key</span>
+                            <input id="area_selector_key" type="hidden" value="f6">
+                            <button class="key-btn" id="area_selector_key_btn" onclick="rebindHotkeys('area_selector_key')" type="button">F6</button>
+                        </div>
+                        <div class="hotkey-row">
+                            <span>Stop Key</span>
+                            <input id="stop_key" type="hidden" value="f7">
+                            <button class="key-btn" id="stop_key_btn" onclick="rebindHotkeys('stop_key')" type="button">F7</button>
+                        </div>
+                    </div>
+                </section>
+
+                <div class="cycle-order-label" style="margin: 18px 4px 8px; font-size: 11px; font-weight: 700; letter-spacing: 0.6px; color: var(--accent-color);">CYCLE ORDER</div>
+
+                <section class="panel open">
+                    <div class="panel-header">
+                        <h2>1 · Buy bait</h2>
+                        <p class="description">Auto-purchase bait and capture shop points</p>
+                        <button class="panel-toggle" type="button" aria-label="Toggle section"></button>
+                    </div>
+                    <div class="panel-body">
+                        <div class="switch2">
+                            <p>Enabled</p>
+                            <label class="switch">
+                                <input id="auto_purchase_bait" type="checkbox">
+                                <div class="slider"></div>
+                            </label>
+                        </div>
+                        <div class="text">
+                            <label>Amount</label>
+                            <input id="purchase_amount" type="text" value="10" placeholder="10">
+                        </div>
+                        <p style="font-size: 11px; color: var(--text-muted); margin: 2px 0 10px; line-height: 1.4;">Amount = desired qty (arrow clicks Amount−1; shop starts at 1) · buy every Amount casts</p>
+                        <div class="text point-select-row">
+                            <label>Got any bait?</label>
+                            <button class="secondary-button point-select-picker" type="button" title="Set point" aria-label="Set point">
+                                <svg class="icon" aria-hidden="true"><use href="#i-crosshair"></use></svg>
+                            </button>
+                            <input id="bait_1_point" value="(not set)">
+                        </div>
+                        <div class="text point-select-row">
+                            <label>Center of textbox</label>
+                            <button class="secondary-button point-select-picker" type="button" title="Set point" aria-label="Set point">
+                                <svg class="icon" aria-hidden="true"><use href="#i-crosshair"></use></svg>
+                            </button>
+                            <input id="bait_2_point" value="(not set)">
+                        </div>
+                        <div class="text point-select-row">
+                            <label>Bait</label>
+                            <button class="secondary-button point-select-picker" type="button" title="Set point" aria-label="Set point">
+                                <svg class="icon" aria-hidden="true"><use href="#i-crosshair"></use></svg>
+                            </button>
+                            <input id="bait_3_point" value="(not set)">
+                        </div>
+                        <div class="text point-select-row">
+                            <label>Increment Arrow</label>
+                            <button class="secondary-button point-select-picker" type="button" title="Set point" aria-label="Set point">
+                                <svg class="icon" aria-hidden="true"><use href="#i-crosshair"></use></svg>
+                            </button>
+                            <input id="bait_4_point" value="(not set)">
+                        </div>
+                        <div class="text point-select-row">
+                            <label>Buy the selection</label>
+                            <button class="secondary-button point-select-picker" type="button" title="Set point" aria-label="Set point">
+                                <svg class="icon" aria-hidden="true"><use href="#i-crosshair"></use></svg>
+                            </button>
+                            <input id="bait_5_point" value="(not set)">
+                        </div>
+                        <div class="text point-select-row">
+                            <label>Deal</label>
+                            <button class="secondary-button point-select-picker" type="button" title="Set point" aria-label="Set point">
+                                <svg class="icon" aria-hidden="true"><use href="#i-crosshair"></use></svg>
+                            </button>
+                            <input id="bait_6_point" value="(not set)">
+                        </div>
+                        <div class="text point-select-row">
+                            <label>Close</label>
+                            <button class="secondary-button point-select-picker" type="button" title="Set point" aria-label="Set point">
+                                <svg class="icon" aria-hidden="true"><use href="#i-crosshair"></use></svg>
+                            </button>
+                            <input id="bait_7_point" value="(not set)">
+                        </div>
+                    </div>
+                </section>
+
+                <section class="panel open">
+                    <div class="panel-header">
+                        <h2>2 · Collect fish</h2>
+                        <p class="description">Delay and hold duration after minigame</p>
+                        <button class="panel-toggle" type="button" aria-label="Toggle section"></button>
+                    </div>
+                    <div class="panel-body">
+                        <div class="text">
+                            <label>Delay before collect (sec)</label>
+                            <input id="after_minigame_sec" type="text" value="0.5" placeholder="0.5">
+                        </div>
+                        <p style="font-size: 11px; color: var(--text-muted); margin: 2px 0 8px;">Wait after the minigame ends (white gone) before holding collect.</p>
+                        <div class="text">
+                            <label>Hold (sec)</label>
+                            <input id="collect_hold_sec" type="text" value="1.2" placeholder="1.2">
+                        </div>
+                        <div class="text point-select-row">
+                            <label>Collect point</label>
+                            <button class="secondary-button point-select-picker" type="button" title="Select point" aria-label="Select point">
+                                <svg class="icon" aria-hidden="true"><use href="#i-crosshair"></use></svg>
+                            </button>
+                            <input id="collect_point" value="(not set)">
+                        </div>
+                    </div>
+                </section>
+
+                <section class="panel open">
+                    <div class="panel-header">
+                        <h2>3 · Cast</h2>
+                        <p class="description">Cast location mode and point</p>
+                        <button class="panel-toggle" type="button" aria-label="Toggle section"></button>
+                    </div>
+                    <div class="panel-body">
+                        <div class="switch2">
+                            <p>Cast outside top-left of scan area</p>
+                            <label class="switch">
+                                <input id="cast_use_scan_top_left" type="checkbox">
+                                <div class="slider"></div>
+                            </label>
+                        </div>
+                        <div class="text point-select-row">
+                            <label>Cast point</label>
+                            <button class="secondary-button point-select-picker" type="button" title="Select cast point" aria-label="Select cast point">
+                                <svg class="icon" aria-hidden="true"><use href="#i-crosshair"></use></svg>
+                            </button>
+                            <input id="cast_point" value="(not set)">
+                        </div>
+                    </div>
+                </section>
+
+                <section class="panel open">
+                    <div class="panel-header">
+                        <h2>4 · Minigame</h2>
+                        <p class="description">Tracking notes</p>
+                        <button class="panel-toggle" type="button" aria-label="Toggle section"></button>
+                    </div>
+                    <div class="panel-body">
+                        <p style="font-size: 12px; color: var(--text-secondary); line-height: 1.5; margin: 0;">
+                            F2 sets the scan area. Track starts when white appears;<br>
+                            fail cast after the Advanced timeout with no white → restart.<br>
+                            Fine-tune FPS / track / delays in the Advanced tab.
+                        </p>
+                    </div>
+                </section>
+
+                <section class="panel open">
+                    <div class="panel-header">
+                        <h2>App</h2>
+                        <p class="description">Window behavior and overlays</p>
+                        <button class="panel-toggle" type="button" aria-label="Toggle section"></button>
+                    </div>
+                    <div class="panel-body">
+                        <div style="font-size: 11px; font-weight: 700; color: var(--text-muted); margin-bottom: 6px;">Window</div>
+                        <div class="switch2">
+                            <p>Auto minimize</p>
+                            <label class="switch">
+                                <input id="auto_minimize" type="checkbox">
+                                <div class="slider"></div>
+                            </label>
+                        </div>
+                        <div class="switch2">
+                            <p>Auto focus Roblox</p>
+                            <label class="switch">
+                                <input id="auto_focus_roblox" type="checkbox">
+                                <div class="slider"></div>
+                            </label>
+                        </div>
+                        <div class="switch2">
+                            <p>Always on top</p>
+                            <label class="switch">
+                                <input id="always_on_top" type="checkbox">
+                                <div class="slider"></div>
+                            </label>
+                        </div>
+                        <div style="font-size: 11px; font-weight: 700; color: var(--text-muted); margin: 14px 0 6px;">Overlays · turn off to reduce lag</div>
+                        <div class="switch2">
+                            <p>Scan outline</p>
+                            <label class="switch">
+                                <input id="show_scan_outline" type="checkbox">
+                                <div class="slider"></div>
+                            </label>
+                        </div>
+                        <div class="switch2">
+                            <p>Overlay arrows</p>
+                            <label class="switch">
+                                <input id="show_overlay_arrows" type="checkbox">
+                                <div class="slider"></div>
+                            </label>
+                        </div>
+                        <div class="switch2">
+                            <p>Scan FPS</p>
+                            <label class="switch">
+                                <input id="show_fps_overlay" type="checkbox">
+                                <div class="slider"></div>
+                            </label>
+                        </div>
+                    </div>
+                </section>
+            </div>
+
+            <div id="advanced" class="tab-content">
+                <div style="display: flex; align-items: center; justify-content: space-between; margin: 0 4px 12px; gap: 12px;">
+                    <p style="margin: 0; font-size: 12px; color: var(--text-secondary);">All timings & tracking — each row has a short how-to. Saves as you type.</p>
+                    <button class="secondary-button" type="button" style="height: 28px; padding: 0 12px; font-size: 12px;">Reset defaults</button>
+                </div>
+                <section class="panel open">
+                    <div class="panel-header">
+                        <h2>Scan detection (white + zone)</h2>
+                        <p class="description">Placeholder settings</p>
+                        <button class="panel-toggle" type="button" aria-label="Toggle section"></button>
+                    </div>
+                    <div class="panel-body">
+                        <div class="text" style="align-items: flex-start; gap: 10px;">
+                            <label style="min-width: 180px; padding-top: 6px;">Zone RGB tolerance</label>
+                            <input id="zone_rgb_tol" type="text" value="28" style="width: 80px; flex: 0 0 auto;">
+                            <div class="minigame-description">How close a pixel’s RGB must match your yellow/green samples. Raise if zone is missed.</div>
+                        </div>
+                        <div class="text" style="align-items: flex-start; gap: 10px;">
+                            <label style="min-width: 180px; padding-top: 6px;">Zone sticky frames</label>
+                            <input id="zone_hold_miss_frames" type="text" value="45" style="width: 80px; flex: 0 0 auto;">
+                            <div class="minigame-description">Keep last zone box this many frames after a miss (covers color flashes).</div>
+                        </div>
+                        <div class="text" style="align-items: flex-start; gap: 10px;">
+                            <label style="min-width: 180px; padding-top: 6px;">White sticky frames</label>
+                            <input id="white_hold_miss_frames" type="text" value="30" style="width: 80px; flex: 0 0 auto;">
+                            <div class="minigame-description">Keep last white box this many frames after a miss.</div>
+                        </div>
+                        <div class="text" style="align-items: flex-start; gap: 10px;">
+                            <label style="min-width: 180px; padding-top: 6px;">White-gone frames</label>
+                            <input id="white_gone_frames" type="text" value="12" style="width: 80px; flex: 0 0 auto;">
+                            <div class="minigame-description">After minigame started: this many frames with no white = minigame ended.</div>
+                        </div>
+                        <div class="text" style="align-items: flex-start; gap: 10px;">
+                            <label style="min-width: 180px; padding-top: 6px;">Error poll (sec)</label>
+                            <input id="poll_sec" type="text" value="0.04" style="width: 80px; flex: 0 0 auto;">
+                            <div class="minigame-description">Sleep between retries when a scan error occurs.</div>
+                        </div>
+                    </div>
+                </section>
+                <section class="panel open">
+                    <div class="panel-header">
+                        <h2>Controller</h2>
+                        <p class="description">Normal / Steady / Predictive hold-release logic</p>
+                        <button class="panel-toggle" type="button" aria-label="Toggle section"></button>
+                    </div>
+                    <div class="panel-body">
+                        <div class="text" style="align-items: flex-start; gap: 10px;">
+                            <label style="min-width: 180px; padding-top: 6px;">Target FPS</label>
+                            <input id="task_fps" type="text" value="30" style="width: 80px; flex: 0 0 auto;">
+                            <div class="minigame-description">How often the bar is scanned and hold/release is updated. Lower if laggy.</div>
+                        </div>
+                        <div class="text" style="align-items: flex-start; gap: 10px;">
+                            <label style="min-width: 180px; padding-top: 6px;">Controller mode</label>
+                            <select id="controller_mode" style="width: 180px; flex: 0 0 auto; height: 28px;">
+                                <option value="normal">Normal (PD)</option>
+                                <option value="steady">Steady (Asymmetric)</option>
+                                <option value="predictive" selected>Predictive</option>
+                            </select>
+                            <div class="minigame-description">Normal = classic PD. Steady = stronger braking when approaching. Predictive = stopping-distance + counter-thrust.</div>
+                        </div>
+                        <div class="text" style="align-items: flex-start; gap: 10px;">
+                            <label style="min-width: 180px; padding-top: 6px;">Kp</label>
+                            <input id="kp" type="text" value="0.45" style="width: 80px; flex: 0 0 auto;">
+                            <div class="minigame-description">Proportional gain. Higher = stronger reaction to position error.</div>
+                        </div>
+                        <div class="text" style="align-items: flex-start; gap: 10px;">
+                            <label style="min-width: 180px; padding-top: 6px;">Kd</label>
+                            <input id="kd" type="text" value="0.35" style="width: 80px; flex: 0 0 auto;">
+                            <div class="minigame-description">Derivative gain. Higher = more damping / less overshoot.</div>
+                        </div>
+                        <div class="text" style="align-items: flex-start; gap: 10px;">
+                            <label style="min-width: 180px; padding-top: 6px;">Stopping distance</label>
+                            <input id="stopping_distance" type="text" value="0.5" style="width: 80px; flex: 0 0 auto;">
+                            <div class="minigame-description">Predictive mode only. Distance (scaled by velocity) at which it switches to counter-thrust.</div>
+                        </div>
+                        <div class="text" style="align-items: flex-start; gap: 10px;">
+                            <label style="min-width: 180px; padding-top: 6px;">Velocity smoothing (0–1)</label>
+                            <input id="velocity_smoothing" type="text" value="0.3" style="width: 80px; flex: 0 0 auto;">
+                            <div class="minigame-description">Predictive mode only. Higher = smoother velocity estimate (less twitchy).</div>
+                        </div>
+                        <div class="text" style="align-items: flex-start; gap: 10px;">
+                            <label style="min-width: 180px; padding-top: 6px;">Scan delay (sec)</label>
+                            <input id="minigame_scan_delay" type="text" value="0.02" style="width: 80px; flex: 0 0 auto;">
+                            <div class="minigame-description">Base frame interval used by the PD terms. Lower = more responsive.</div>
+                        </div>
+                    </div>
+                </section>
+                <section class="panel open">
+                    <div class="panel-header">
+                        <h2>Cast & fail-cast wait</h2>
+                        <p class="description">Placeholder settings</p>
+                        <button class="panel-toggle" type="button" aria-label="Toggle section"></button>
+                    </div>
+                    <div class="panel-body">
+                        <div class="text" style="align-items: flex-start; gap: 10px;">
+                            <label style="min-width: 180px; padding-top: 6px;">Scan TL offset (px)</label>
+                            <input id="cast_top_left_outset_px" type="text" value="28" style="width: 80px; flex: 0 0 auto;">
+                            <div class="minigame-description">When casting at scan top-left, how far above/left of the box to click.</div>
+                        </div>
+                        <div class="text" style="align-items: flex-start; gap: 10px;">
+                            <label style="min-width: 180px; padding-top: 6px;">Cast click settle (sec)</label>
+                            <input id="cast_settle_sec" type="text" value="0.08" style="width: 80px; flex: 0 0 auto;">
+                            <div class="minigame-description">Short pause right after the cast click.</div>
+                        </div>
+                        <div class="text" style="align-items: flex-start; gap: 10px;">
+                            <label style="min-width: 180px; padding-top: 6px;">After cast delay (sec)</label>
+                            <input id="cast_after_sec" type="text" value="0.25" style="width: 80px; flex: 0 0 auto;">
+                            <div class="minigame-description">Pause after casting before watching for the minigame.</div>
+                        </div>
+                        <div class="text" style="align-items: flex-start; gap: 10px;">
+                            <label style="min-width: 180px; padding-top: 6px;">Fail-cast timeout (sec)</label>
+                            <input id="wait_minigame_start_sec" type="text" value="20" style="width: 80px; flex: 0 0 auto;">
+                            <div class="minigame-description">If white never appears after cast within this time → restart cycle (default 20).</div>
+                        </div>
+                        <div class="text" style="align-items: flex-start; gap: 10px;">
+                            <label style="min-width: 180px; padding-top: 6px;">Minigame max (sec)</label>
+                            <input id="wait_minigame_end_sec" type="text" value="120" style="width: 80px; flex: 0 0 auto;">
+                            <div class="minigame-description">Safety timeout once the minigame has started. Then collect anyway.</div>
+                        </div>
+                    </div>
+                </section>
+                <section class="panel open">
+                    <div class="panel-header">
+                        <h2>Collect fish</h2>
+                        <p class="description">Placeholder settings</p>
+                        <button class="panel-toggle" type="button" aria-label="Toggle section"></button>
+                    </div>
+                    <div class="panel-body">
+                        <div class="text" style="align-items: flex-start; gap: 10px;">
+                            <label style="min-width: 180px; padding-top: 6px;">Delay before collect (sec)</label>
+                            <input id="after_minigame_sec" type="text" value="2.0" style="width: 80px; flex: 0 0 auto;">
+                            <div class="minigame-description">Wait after white disappears before the collect hold. Also on the Main tab.</div>
+                        </div>
+                        <div class="text" style="align-items: flex-start; gap: 10px;">
+                            <label style="min-width: 180px; padding-top: 6px;">Collect hold (sec)</label>
+                            <input id="collect_hold_sec" type="text" value="3.0" style="width: 80px; flex: 0 0 auto;">
+                            <div class="minigame-description">How long to hold left-click on the collect point. Also on the Main tab.</div>
+                        </div>
+                        <div class="text" style="align-items: flex-start; gap: 10px;">
+                            <label style="min-width: 180px; padding-top: 6px;">After collect delay (sec)</label>
+                            <input id="after_collect_sec" type="text" value="0.35" style="width: 80px; flex: 0 0 auto;">
+                            <div class="minigame-description">Pause after releasing the collect hold before the next cycle.</div>
+                        </div>
+                    </div>
+                </section>
+                <section class="panel open">
+                    <div class="panel-header">
+                        <h2>Buy bait timings</h2>
+                        <p class="description">Placeholder settings</p>
+                        <button class="panel-toggle" type="button" aria-label="Toggle section"></button>
+                    </div>
+                    <div class="panel-body">
+                        <div class="text" style="align-items: flex-start; gap: 10px;">
+                            <label style="min-width: 180px; padding-top: 6px;">Key hold (sec)</label>
+                            <input id="key_hold_sec" type="text" value="0.1" style="width: 80px; flex: 0 0 auto;">
+                            <div class="minigame-description">How long T (and other keys) are held — more human, less miss.</div>
+                        </div>
+                        <div class="text" style="align-items: flex-start; gap: 10px;">
+                            <label style="min-width: 180px; padding-top: 6px;">After T delay (sec)</label>
+                            <input id="after_t_sec" type="text" value="2.0" style="width: 80px; flex: 0 0 auto;">
+                            <div class="minigame-description">Wait after pressing T before the first bait click.</div>
+                        </div>
+                        <div class="text" style="align-items: flex-start; gap: 10px;">
+                            <label style="min-width: 180px; padding-top: 6px;">Click settle (sec)</label>
+                            <input id="click_settle_sec" type="text" value="0.18" style="width: 80px; flex: 0 0 auto;">
+                            <div class="minigame-description">Pause built into each normal bait click (p1–p3, p5–p7).</div>
+                        </div>
+                        <div class="text" style="align-items: flex-start; gap: 10px;">
+                            <label style="min-width: 180px; padding-top: 6px;">Between clicks (sec)</label>
+                            <input id="between_clicks_sec" type="text" value="1.5" style="width: 80px; flex: 0 0 auto;">
+                            <div class="minigame-description">Gap between normal bait clicks (not the p4 spam).</div>
+                        </div>
+                        <div class="text" style="align-items: flex-start; gap: 10px;">
+                            <label style="min-width: 180px; padding-top: 6px;">Between p4 clicks (sec)</label>
+                            <input id="between_p4_clicks_sec" type="text" value="0.08" style="width: 80px; flex: 0 0 auto;">
+                            <div class="minigame-description">Gap while spamming the increment arrow. Keep low.</div>
+                        </div>
+                        <div class="text" style="align-items: flex-start; gap: 10px;">
+                            <label style="min-width: 180px; padding-top: 6px;">p4 click settle (sec)</label>
+                            <input id="p4_click_settle_sec" type="text" value="0.02" style="width: 80px; flex: 0 0 auto;">
+                            <div class="minigame-description">Tiny settle on each increment click.</div>
+                        </div>
+                        <div class="text" style="align-items: flex-start; gap: 10px;">
+                            <label style="min-width: 180px; padding-top: 6px;">p5 → p6 delay (sec)</label>
+                            <input id="between_p5_p6_sec" type="text" value="1.8" style="width: 80px; flex: 0 0 auto;">
+                            <div class="minigame-description">Extra wait between Buy and Deal.</div>
+                        </div>
+                        <div class="text" style="align-items: flex-start; gap: 10px;">
+                            <label style="min-width: 180px; padding-top: 6px;">p6 → p7 delay (sec)</label>
+                            <input id="between_p6_p7_sec" type="text" value="1.8" style="width: 80px; flex: 0 0 auto;">
+                            <div class="minigame-description">Extra wait between Deal and Close.</div>
+                        </div>
+                        <div class="text" style="align-items: flex-start; gap: 10px;">
+                            <label style="min-width: 180px; padding-top: 6px;">After purchase (sec)</label>
+                            <input id="after_purchase_sec" type="text" value="0.9" style="width: 80px; flex: 0 0 auto;">
+                            <div class="minigame-description">Pause when the buy sequence is fully done.</div>
+                        </div>
+                    </div>
+                </section>
+                <section class="panel open">
+                    <div class="panel-header">
+                        <h2>Mouse click feel</h2>
+                        <p class="description">Placeholder settings</p>
+                        <button class="panel-toggle" type="button" aria-label="Toggle section"></button>
+                    </div>
+                    <div class="panel-body">
+                        <div class="text" style="align-items: flex-start; gap: 10px;">
+                            <label style="min-width: 180px; padding-top: 6px;">Move nudge mid (sec)</label>
+                            <input id="mouse_nudge_mid_sec" type="text" value="0.01" style="width: 80px; flex: 0 0 auto;">
+                            <div class="minigame-description">Roblox-friendly cursor nudge timing (middle of move).</div>
+                        </div>
+                        <div class="text" style="align-items: flex-start; gap: 10px;">
+                            <label style="min-width: 180px; padding-top: 6px;">Move settle (sec)</label>
+                            <input id="mouse_nudge_settle_sec" type="text" value="0.04" style="width: 80px; flex: 0 0 auto;">
+                            <div class="minigame-description">Pause after moving the cursor before clicking.</div>
+                        </div>
+                        <div class="text" style="align-items: flex-start; gap: 10px;">
+                            <label style="min-width: 180px; padding-top: 6px;">Click hold (sec)</label>
+                            <input id="mouse_click_hold_sec" type="text" value="0.04" style="width: 80px; flex: 0 0 auto;">
+                            <div class="minigame-description">How long a normal left-click stays down.</div>
+                        </div>
+                    </div>
+                </section>
+            </div>
+
+                        <div id="faq" class="tab-content">
+                <section class="panel open">
+                    <div class="panel-header">
+                        <h2>Main</h2>
+                        <p class="description">Questions about general settings, hotkeys, and basic options.</p>
+                        <button class="panel-toggle" type="button" aria-label="Toggle section"></button>
+                    </div>
+                    <div class="panel-body">
+                        <div class="faq-item">
+                            <p class="faq-problem"><strong>HOTKEYS DOESN'T WORK</strong></p>
+                            <p class="faq-solution">Make sure to run as adminstrator on Windows and reset permissions after a Solar Fishing Slayers 2 update on macOS</p>
+                            <p class="faq-solution">If that is checked, check the Start/Stop key, Area Selector key and Screenshot key in Main match the keys you are pressing.</p>
+                        </div>
+                        <div class="faq-item">
+                            <p class="faq-problem"><strong>COULD NOT FIND THE ROBLOX GAME WINDOW</strong></p>
+                            <p class="faq-solution">Open Roblox and join a game before you press Start. If Roblox is already open, please maximize the Roblox window. DO NOT RUN ROBLOX IN FULLSCREEN.</p>
+                        </div>
+                        <div class="faq-item">
+                            <p class="faq-problem"><strong>THE COLOR PICKER OR DETECTION LANDS IN THE WRONG PLACE</strong></p>
+                            <p class="faq-solution">Press the Detect Roblox button and follow the prompt to open the area selector. This is caused by broken Roblox cache</p>
+                        </div>
+                        <div class="faq-item">
+                            <p class="faq-problem"><strong>IT BROKE AFTER I RESIZED OR MOVED ROBLOX</strong></p>
+                            <p class="faq-solution">Stop the macro and start it again. This is because the macro gets the Roblox coordinates at the start.</p>
+                        </div>
+                        <div class="faq-item">
+                            <p class="faq-problem"><strong>MY GAME LAGS WHILE THE MACRO RUNS</strong></p>
+                            <p class="faq-solution">The macro reads the screen many times a second. A low frame rate in Roblox makes the minigame harder to follow, so lower graphics directly helps tracking.
+                                Also, make sure to set controller mode to Predictive as it handles lag really well.
+                            </p>
+                        </div>
+                    </div>
+                </section>
+            </div>
+
+            <div id="about" class="tab-content">
+                <section class="panel open">
+                    <div class="panel-header">
+                        <h2>About this macro</h2>
+                        <p class="description">Credits and acknowledgements for Solar Fishing Slayers 2.</p>
+                        <button class="panel-toggle" type="button" aria-label="Toggle section"></button>
+                    </div>
+                    <div class="panel-body">
+                        <div class="credits">
+                            <div class="credit-item">
+                                <img src="Catman.png" alt="Catman2608" class="credit-avatar">
+                                <div class="credit-text">
+                                    <div class="credit-name">Catman2608</div>
+                                    <div class="credit-role">Creator</div>
+                                </div>
+                            </div>
+                            <div class="credit-item">
+                                <img src="AsphaltCake.png" alt="Asphalt Cake" class="credit-avatar">
+                                <div class="credit-text">
+                                    <div class="credit-name">Asphalt Cake</div>
+                                    <div class="credit-role">Precision/Lines mode control method, adapted from IRUS IDIOTPROOF/IRUS COMET</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="disclaimer">
+                            <strong>IMPORTANT DISCLAIMER:</strong>
+                            <p>Any person claiming to be part of this project or its development is most likely lying. Be cautious of fake contributors or impersonators.</p>
+                        </div>
+                    </div>
+                </section>
+
+                <section class="panel open">
+                    <div class="panel-header">
+                        <h2>Resources</h2>
+                        <p class="description">Official community, website, and source code links.</p>
+                        <button class="panel-toggle" type="button" aria-label="Toggle section"></button>
+                    </div>
+                    <div class="panel-body">
+                        <div class="resource-links">
+                            <a href="https://catman2608.github.io/PyWare-Backend/" target="_blank" rel="noopener">Official Website</a>
+                            <a href="https://discord.gg/aMZY8yrF8r" target="_blank" rel="noopener">Join Solar Macros Discord Server</a>
+                            <a href="https://github.com/Catman2608/Solar-Fishing-Slayers-2" target="_blank" rel="noopener">Source Code</a>
+                            <a href="https://docs.google.com/document/d/1ZTDFi4jwSnJE1jq3bT1yNnnX3V-ohEOvXNOm6P1dPNU" target="_blank" rel="noopener">Minigame Guide</a>
+                            <a href="https://docs.google.com/document/d/1WwWWMR-eN-R-GO42IioToHpWTgiXkLoiNE_4NeE-GsU" target="_blank" rel="noopener">Upcoming Features</a>
+                            <a href="https://www.youtube.com/@HexaTitanGaming" target="_blank" rel="noopener">Catman's YouTube Channel</a>
+                        </div>
+                    </div>
+                </section>
+            </div>
+
+        </div>
+        </div>
+    </div>
+
+    <!-- Bottom Banner (cookie-style) -->
+    <div id="bottom-banner" class="bottom-banner hidden" role="dialog" aria-modal="false">
+        <div class="banner-inner">
+            <div class="banner-main">
+                <div class="banner-text">
+                    <h3 id="banner-title" class="banner-title">Update Available</h3>
+                    <p id="banner-notice" class="banner-notice">A new version is available.</p>
+                </div>
+                <div id="banner-dialogue" class="banner-dialogue hidden">
+                    <input id="banner-input" class="banner-input" type="text" placeholder="Enter a value..." />
+                </div>
+            </div>
+            <div id="banner-actions" class="banner-actions">
+                <!-- buttons injected by JS -->
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+    <script>
+        document.querySelectorAll(".panel-toggle").forEach((btn) => {
+            btn.addEventListener("click", () => {
+                btn.closest(".panel").classList.toggle("open");
+            });
+        });
+    </script>
+</body>
+</html>
