@@ -1,0 +1,29 @@
+Step 1: run this code to change direction (change to your actual directory):
+cd /Users/YourName/directory/SolarFishing
+Step 2: Convert to application
+
+macOS command:
+pyinstaller --onedir --windowed \
+  --icon="icon.icns" --target-arch=arm64 \
+  --add-data "ui:ui" \
+  --add-data "images:images" \
+  --add-data "configs:configs" \
+  "main.py"
+
+Windows command:
+pyinstaller --onefile --windowed --icon="icon.ico" "main.py"
+
+Step 3: Sign the bundle (not required but I don’t know if it will interfere with the unauthorized build warning or not)
+codesign --force --deep --sign - /Users/YourName/directory/SolarFishing/dist/SolarFishing
+
+Step 4: Run this code to create setup instructions (if macOS) and if Windows compress to ZIP
+
+hdiutil create -volname "VolumeName" -srcfolder cd /Users/YourName/directory/SolarFishing
+ -ov -format UDZO name.dmg
+
+For me, the first line of code in the terminal looks like this:
+cd "/Users/hoangphuc/Documents/Apps/Macros/Slayers 2 Fishing/Main"
+Third line:
+codesign --force --deep --sign - /Users/hoangphuc/Documents/Apps/Macros/Solar\ Fishing\ V5/dist/SolarFishing.app 
+Fourth line:
+hdiutil create -volname "macOS.dmg" -srcfolder "/Users/hoangphuc/Documents/Apps/Macros/Slayers 2 Fishing/Main/dist" -ov -format UDZO macOS.dmg

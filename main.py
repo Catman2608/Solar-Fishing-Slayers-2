@@ -4606,7 +4606,7 @@ class Api:
         start_timeout = _t("wait_minigame_start_sec", 20.0)
         end_timeout = _t("wait_minigame_end_sec", 120.0)
 
-        # ── Controller settings (ported from SolarFishingV5 _enter_minigame) ──
+        # ── Controller settings (ported from main _enter_minigame) ──
         controller_mode = str(self.vars.get("controller_mode", "predictive")).lower()
         kp = max(abs(self._get_var_number("kp", 0.45)), 0.01)
         kd = max(abs(self._get_var_number("kd", 0.35)), 0.01)
