@@ -743,8 +743,8 @@ def _await_completion(operation, timeout=4.0):
 
 
 _EXCLUDED_WINDOW_TITLES = {'Solar Fishing Live Preview',
-                           'Solar Fishing Live Preview · Bellona 1',
-                           'Solar Fishing Live Preview · Bellona 2'}
+                        'Solar Fishing Live Preview · Bellona 1',
+                        'Solar Fishing Live Preview · Bellona 2'}
 
 
 def _own_process_ids():
@@ -1005,7 +1005,7 @@ class _RegionCapture:
             refresh_rate = getattr(native, 'refresh_rate', None)
             if isinstance(refresh_rate, (int, float)) and self.fps > refresh_rate:
                 self.log(f'>>> CAPTURE: capturing at {round(refresh_rate)} fps '
-                         f'(display refresh) instead of {self.fps}')
+                        f'(display refresh) instead of {self.fps}')
             return frame
         native = self.regions[key]
         try:
@@ -1137,42 +1137,71 @@ def _schedule_webview_destroy(win, after=None, delay=0.05):
     threading.Thread(target=_destroy, daemon=True).start()
 # Config Management
 def get_base_path():
-    # 1. Check If The Application Is Bundled/Frozen
-    if getattr(sys, 'frozen', False):
-        # Detect If It'S A macOS Application Bundle (.App)
-        if sys.platform == 'darwin':
-            if getattr(sys, "frozen", False) and hasattr(sys, "_MEIPASS"):
-                #   Windows/Linux onedir →  <app>/_internal
-                #   macOS .app           →  <app>.app/Contents/Frameworks
-                #   onefile              →  temp extract dir
-                return Path(sys._MEIPASS).resolve(), True
+    if getattr(sys, "frozen", False):
+        if sys.platform == "darwin":
+            # User-writable data directory for macOS .app bundles
+            data_dir = Path.home() / "Library" / "Application Support" / "SolarFishingSlayers2"
+            data_dir.mkdir(parents=True, exist_ok=True)
+            return data_dir, True
 
-        # Detect If It'S A Linux Packaged Environment (Like Appimage)
-        # Linux Appimages Extract To A Mount Point, Keeping Assets Inside The Binary Environment
         elif sys.platform == "linux":
             if 'AppRun' in sys.executable:
                 return Path(sys.executable).parent.resolve(), True
-
-        # 2. Windows Exe (Onefile) Or Standard Local Folder Deployment
-        # Returns The Directory Containing The Actual .Exe File, Not The Temporary _Meipass Folder
         else:
             return Path(sys.executable).parent.resolve(), True
-
-    # 3. Running From Raw Source Code (.Py File)
     else:
         return Path(__file__).parent.resolve(), False
 
-# Establish The Global Base Path For Solar Fishing Slayers 2 V5
-BASE_PATH, IS_COMPILED = get_base_path()
-COLORS_PATH = os.path.join(BASE_PATH, "colors.json")
+# Get Read Only Path
+def get_resource_path():
+    """
+    Packaged assets (ui/, images/, bundled default configs/).
+    Compiled macOS/Linux: PyInstaller onedir --add-data folder (sys._MEIPASS, typically <app>/_internal or .app/Contents/Frameworks).
+    Compiled Windows: directory next to the .exe (unchanged).
+    Dev: project directory.
+    """
+    if getattr(sys, 'frozen', False):
+        if sys.platform == "win32":
+            return Path(sys.executable).parent.resolve()
+
+        if hasattr(sys, "_MEIPASS"):
+            return Path(sys._MEIPASS).resolve()
+
+        return Path(sys.executable).parent.resolve()
+
+    return Path(__file__).parent.resolve()
+
+# Make Sure That Configs Actually Exist
+def ensure_config_exists():
+    colors = os.path.join(EDITABLE_PATH, "colors.json")
+    settings = os.path.join(EDITABLE_PATH, "settings.json")
+    defaults = {
+        colors: {"rgb_tol": 12, "yellow": [], "green": []},
+        settings: {},
+    }
+    for path, default in defaults.items():
+        # Write a valid JSON seed if the file is missing OR empty.
+        try:
+            if not os.path.exists(path) or os.path.getsize(path) == 0:
+                with open(path, "w", encoding="utf-8") as f:
+                    json.dump(default, f, indent=4)
+        except OSError:
+            # Read-only path (e.g. accidental write into .app bundle) — let
+            # later load fail loudly instead of crashing at import time.
+            pass
+    return colors, settings
+
+# Establish The Global Base Path For Solar Fishing V5
+EDITABLE_PATH, IS_COMPILED = get_base_path()
+READ_ONLY_PATH = get_resource_path()
 # Make Sure Base Path Exists
-os.makedirs(BASE_PATH, exist_ok=True)
+os.makedirs(EDITABLE_PATH, exist_ok=True)
+os.makedirs(READ_ONLY_PATH, exist_ok=True)
 # Configs Path
-MISC_PATH = os.path.join(BASE_PATH, "misc.json")
-data = load_misc_settings(MISC_PATH)
-SETTINGS_PATH = os.path.join(BASE_PATH, "settings.json")
-IMAGES_PATH = os.path.join(BASE_PATH, "images")
-UI_PATH = os.path.join(BASE_PATH, "ui")
+LAST_CONFIG = os.path.join(EDITABLE_PATH, "misc.json")
+data = load_misc_settings(LAST_CONFIG)
+UI_PATH = os.path.join(READ_ONLY_PATH, "ui")
+COLORS_PATH, SETTINGS_PATH = ensure_config_exists()
 # None until index.html is parsed. Must exist before _get_prompt_defaults reads it.
 _PROMPT_DEFAULTS = None
 # Central Area Definitions.  To Add A New Selectable Area:
@@ -2864,7 +2893,7 @@ class Api:
         return dict(defaults)
 
     def _get_saved_default_config(self):
-        default_path = os.path.join("settings.json")
+        default_path = SETTINGS_PATH
         try:
             with open(default_path, "r", encoding="utf-8") as file:
                 data = json.load(file)
@@ -2927,7 +2956,8 @@ class Api:
         return filled
 
     def _ensure_default_config(self):
-        path = os.path.join("settings.json")
+        path = SETTINGS_PATH                # already defined at module level = EDITABLE_PATH/settings.json
+        os.makedirs(EDITABLE_PATH, exist_ok=True)
         if not os.path.exists(path):
             with open(path, "w", encoding="utf-8") as file:
                 json.dump({}, file, indent=4)
@@ -3010,7 +3040,7 @@ class Api:
 
             settings = self._migrate_old_bar_colors(dict(settings))
             settings = self._fill_blank_settings(settings)
-            os.makedirs(BASE_PATH, exist_ok=True)
+            os.makedirs(EDITABLE_PATH, exist_ok=True)
             with open(SETTINGS_PATH, "w", encoding="utf-8") as file:
                 json.dump(settings, file, indent=4)
             self.vars = self._settings_for_vars(settings)
@@ -3060,6 +3090,7 @@ class Api:
         settings = {}
         load_error = None
         config_path = SETTINGS_PATH
+        exc = 0
 
         try:
             if os.path.exists(config_path):
@@ -3080,7 +3111,7 @@ class Api:
 
         if load_error is None:
             try:
-                os.makedirs(BASE_PATH, exist_ok=True)
+                os.makedirs(EDITABLE_PATH, exist_ok=True)
                 with open(SETTINGS_PATH, "w", encoding="utf-8") as file:
                     json.dump(settings, file, indent=4)
             except OSError as exc:
@@ -3093,7 +3124,7 @@ class Api:
 
     def _load_misc_settings(self):
         """Load miscellaneous settings from misc.json into self.misc_settings and apply them."""
-        current_path = os.path.join(BASE_PATH, "misc.json")
+        current_path = os.path.join(EDITABLE_PATH, "misc.json")
         self.misc_settings = load_misc_settings(current_path)
         data = self.misc_settings  # get data from self.misc_settings
         # Bar Areas
@@ -3143,7 +3174,7 @@ class Api:
 
     def save_misc_settings(self):
         """Save miscellaneous settings using self.misc_settings."""
-        path = os.path.join(BASE_PATH, "misc.json")
+        path = os.path.join(EDITABLE_PATH, "misc.json")
         # Use self.misc_settings as the source of truth
         if not isinstance(getattr(self, "misc_settings", None), dict):
             self.misc_settings = {}
@@ -3353,7 +3384,7 @@ class Api:
             return
 
         try:
-            cv2.imwrite(os.path.join(BASE_PATH, "debug_full.png"), full_img)
+            cv2.imwrite(os.path.join(EDITABLE_PATH, "debug_full.png"), full_img)
         except Exception as e:
             self.set_status(f"Error saving full screenshot: {e}")
             return
@@ -3372,7 +3403,7 @@ class Api:
                 if crop.size == 0:
                     continue
 
-                cv2.imwrite(os.path.join(BASE_PATH, f"debug_{name}.png"), crop)
+                cv2.imwrite(os.path.join(EDITABLE_PATH, f"debug_{name}.png"), crop)
                 saved.append(name)
         except Exception as e:
             self.set_status(f"Error saving region screenshots: {e}")
@@ -4354,7 +4385,7 @@ class Api:
         """Write debug logs to a text file."""
         try:
             # Use Base Path For Logs
-            log_dir = BASE_PATH
+            log_dir = EDITABLE_PATH
             os.makedirs(log_dir, exist_ok=True)
             # Daily Log File
             log_file = os.path.join(log_dir, f"debug_{time.strftime('%Y-%m-%d')}.txt")

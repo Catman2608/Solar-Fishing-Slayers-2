@@ -518,6 +518,16 @@ async function loadSettings() {
     } catch (error) {
         console.error(error);
         setStatus("Error loading settings: " + error);
+        // Surface the error in the bottom banner so it is never lost off-screen.
+        // Do not await — the banner resolver is independent of the load cycle,
+        // and awaiting would keep loadingSettings=true until the user dismisses it.
+        showMessageBoxBanner(
+            "Failed to load settings:\n\n" + String(error && error.message ? error.message : error),
+            "ok"
+        ).catch((bannerError) => {
+            // Last-resort fallback if the banner itself fails to render.
+            console.error(bannerError);
+        });
     } finally {
         loadingSettings = false;
     }
